@@ -9,7 +9,6 @@ import (
 
 	"context"
 	"database/sql"
-	"time"
 
 	"github.com/google/uuid"
 	"github.com/jackc/pgx/v4/pgxpool"
@@ -85,11 +84,11 @@ func (u *BookRepo) GetByPKey(ctx context.Context, req *book_service.BookPK) (Boo
 		title     sql.NullString
 		cover     sql.NullString
 		author    sql.NullString
-		published sql.NullTime
+		published sql.NullString
 		pages     sql.NullInt32
 		status    sql.NullInt32
-		created   sql.NullTime
-		updated   sql.NullTime
+		created   sql.NullString
+		updated   sql.NullString
 	)
 
 	err = u.db.QueryRow(ctx, query, req.Id).Scan(
@@ -114,11 +113,11 @@ func (u *BookRepo) GetByPKey(ctx context.Context, req *book_service.BookPK) (Boo
 		Title:     title.String,
 		Cover:     cover.String,
 		Author:    author.String,
-		Published: published.Time.Format(time.RFC3339),
+		Published: published.String,
 		Pages:     int32(pages.Int32),
 		Status:    int32(status.Int32),
-		CreatedAt: created.Time.Format(time.RFC3339),
-		UpdatedAt: updated.Time.Format(time.RFC3339),
+		CreatedAt: created.String,
+		UpdatedAt: updated.String,
 	}
 
 	return
@@ -150,11 +149,11 @@ func (u *BookRepo) GetBookByTitle(ctx context.Context, req *book_service.BookByT
 		title     sql.NullString
 		cover     sql.NullString
 		author    sql.NullString
-		published sql.NullTime
+		published sql.NullString
 		pages     sql.NullInt32
 		status    sql.NullInt32
-		created   sql.NullTime
-		updated   sql.NullTime
+		created   sql.NullString
+		updated   sql.NullString
 	)
 
 	err = row.Scan(
@@ -182,11 +181,11 @@ func (u *BookRepo) GetBookByTitle(ctx context.Context, req *book_service.BookByT
 		Title:     title.String,
 		Cover:     cover.String,
 		Author:    author.String,
-		Published: published.Time.Format(time.RFC3339),
+		Published: published.String,
 		Pages:     int32(pages.Int32),
 		Status:    int32(status.Int32),
-		CreatedAt: created.Time.Format(time.RFC3339),
-		UpdatedAt: updated.Time.Format(time.RFC3339),
+		CreatedAt: created.String,
+		UpdatedAt: updated.String,
 	}
 
 	return
@@ -197,16 +196,16 @@ func (u *BookRepo) GetAll(ctx context.Context, req *book_service.BookListRequest
 
 	var (
 		query  string
-		limit  string
-		offset string
+		limit  = ""
+		offset = " OFFSET 0 "
 		params = make(map[string]interface{})
 		filter = " WHERE TRUE "
 		sort   = " ORDER BY created_at DESC"
-		args   []interface{}
 	)
 
 	query = `
 		SELECT
+			COUNT(*) OVER(),
 			"id",
 			"isbn",
 			"title",
@@ -215,32 +214,26 @@ func (u *BookRepo) GetAll(ctx context.Context, req *book_service.BookListRequest
 			"published",
 			"pages",
 			"status",
-			"created_at",
-			"updated_at"
+			TO_CHAR(created_at, 'YYYY-MM-DD HH24:MI:SS'),
+			TO_CHAR(updated_at, 'YYYY-MM-DD HH24:MI:SS')
 		FROM "book"
 	`
 
 	if len(req.GetSearch()) > 0 {
-		filter += " AND (title ILIKE '%' || $1 || '%' OR author ILIKE '%' || $1 || '%') "
-		args = append(args, req.Search)
+		filter += " AND (title || ' ' || author) ILIKE '%' || '" + req.Search + "' || '%' "
 	}
-
 	if req.GetLimit() > 0 {
-		limit = " LIMIT $2"
+		limit = " LIMIT :limit"
 		params["limit"] = req.Limit
-		args = append(args, req.Limit)
 	}
-
 	if req.GetOffset() > 0 {
-		offset = " OFFSET $3"
+		offset = " OFFSET :offset"
 		params["offset"] = req.Offset
-		args = append(args, req.Offset)
 	}
 
 	query += filter + sort + offset + limit
 
-	query, args = helper.ReplaceQueryParams(query, params)
-
+	query, args := helper.ReplaceQueryParams(query, params)
 	rows, err := u.db.Query(ctx, query, args...)
 	if err != nil {
 		return resp, err
@@ -254,14 +247,15 @@ func (u *BookRepo) GetAll(ctx context.Context, req *book_service.BookListRequest
 			title     sql.NullString
 			cover     sql.NullString
 			author    sql.NullString
-			published sql.NullTime
+			published sql.NullString
 			pages     sql.NullInt32
 			status    sql.NullInt32
-			created   sql.NullTime
-			updated   sql.NullTime
+			created   sql.NullString
+			updated   sql.NullString
 		)
 
 		err := rows.Scan(
+			&resp.Count,
 			&id,
 			&isbn,
 			&title,
@@ -283,11 +277,11 @@ func (u *BookRepo) GetAll(ctx context.Context, req *book_service.BookListRequest
 			Title:     title.String,
 			Cover:     cover.String,
 			Author:    author.String,
-			Published: published.Time.Format(time.RFC3339),
+			Published: published.String,
 			Pages:     int32(pages.Int32),
 			Status:    int32(status.Int32),
-			CreatedAt: created.Time.Format(time.RFC3339),
-			UpdatedAt: updated.Time.Format(time.RFC3339),
+			CreatedAt: created.String,
+			UpdatedAt: updated.String,
 		})
 	}
 

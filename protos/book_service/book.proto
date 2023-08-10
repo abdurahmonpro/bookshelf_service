@@ -22,7 +22,7 @@ message CreateBook {
     string title = 2;
     string cover = 3;
     string author = 4;
-    int32 published = 5;
+    string published = 5;
     int32 pages = 7;
     int32 status = 8; // 0-new, 1-reading, 2-finished,
 }
@@ -33,7 +33,7 @@ message UpdateBook {
     string title = 3;
     string cover = 4;
     string author = 5;
-    int32 published = 6;
+    string published = 6;
     int32 pages = 7;
     int32 status = 8; // 0-new, 1-reading, 2-finished,
 }

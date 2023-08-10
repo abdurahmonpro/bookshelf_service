@@ -3,9 +3,9 @@ CREATE TABLE IF NOT EXISTS "book" (
     "isbn" VARCHAR(30) NOT NULL,
     "title" VARCHAR(30) NOT NULL,
     "cover" VARCHAR(17) NOT NULL UNIQUE,
-    "author" DATE,
-    "pulished" DATE NOT NULL,
-    "pages" NUMBER,
+    "author" VARCHAR(20) NOT NULL,
+    "published" VARCHAR NOT NULL,
+    "pages" INTEGER NOT NULL,
     -- 0 new, -- 1 reading, -- 2 finished
     "status" SMALLINT NOT NULL DEFAULT 0,
     "created_at" TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
