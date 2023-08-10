@@ -1,0 +1,19 @@
+syntax = "proto3";
+
+package book_service;
+
+option go_package = "genproto/book_service";
+
+
+import "google/protobuf/empty.proto";
+import "book.proto";
+
+service BookService {
+    rpc Create(CreateBook) returns (Book) {};
+    rpc GetByID(BookPK) returns (Book) {};
+    rpc GetList(BookListRequest) returns (BookListResponse) {};
+    rpc Update(UpdateBook) returns (Book) {};
+    rpc UpdatePatch(UpdatePatchBook) returns (Book) {};
+    rpc Delete(BookPK) returns (google.protobuf.Empty) {};
+    rpc GetBookByTitle(BookByTitle) returns (Book) {};
+}

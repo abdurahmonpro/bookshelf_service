@@ -1,0 +1,3 @@
+[submodule "book_protos"]
+	path = book_protos
+	url = https://gitlab.com/bookshelf334031/book_protos.git

@@ -1,0 +1,13 @@
+syntax="proto3";
+
+package auth_service;
+option go_package="genproto/auth_service";
+
+import "user.proto";
+
+service UserService {
+    rpc Create(CreateUser) returns (User) {}
+    rpc GetByID(UserPK) returns (User) {}
+    rpc GetUserList(UserListRequest) returns (UserListResponse) {}
+    rpc CheckUser(CheckUserRequest) returns (CheckUserResponse) {}
+}
