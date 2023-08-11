@@ -28,21 +28,21 @@ type Config struct {
 	PostgresPassword string
 	PostgresDatabase string
 
-	UserServiceHost string
-	UserGRPCPort    string
+	BookServiceHost string
+	BookGRPCPort    string
 
 	PostgresMaxConnections int32
 }
 
 // Load ...
 func Load() Config {
-	if err := godotenv.Load("/ibron_go_user_service.env"); err != nil {
+	if err := godotenv.Load(); err != nil {
 		fmt.Println("No .env file found")
 	}
 
 	config := Config{}
 
-	config.ServiceName = cast.ToString(getOrReturnDefaultValue("SERVICE_NAME", "book_service"))
+	config.ServiceName = cast.ToString(getOrReturnDefaultValue("SERVICE_NAME", "lavina_go_bookshelf_service"))
 	config.Environment = cast.ToString(getOrReturnDefaultValue("ENVIRONMENT", DebugMode))
 	config.Version = cast.ToString(getOrReturnDefaultValue("VERSION", "1.0"))
 
@@ -52,8 +52,8 @@ func Load() Config {
 	config.PostgresPassword = cast.ToString(getOrReturnDefaultValue("POSTGRES_PASSWORD", "aus1003"))
 	config.PostgresDatabase = cast.ToString(getOrReturnDefaultValue("POSTGRES_DATABASE", config.ServiceName))
 
-	config.UserServiceHost = cast.ToString(getOrReturnDefaultValue("USER_SERVICE_HOST", "localhost"))
-	config.UserGRPCPort = cast.ToString(getOrReturnDefaultValue("USER_GRPC_PORT", ":9101"))
+	config.BookServiceHost = cast.ToString(getOrReturnDefaultValue("BOOK_SERVICE_HOST", "localhost"))
+	config.BookGRPCPort = cast.ToString(getOrReturnDefaultValue("BOOK_GRPC_PORT", ":9101"))
 
 	config.PostgresMaxConnections = cast.ToInt32(getOrReturnDefaultValue("POSTGRES_MAX_CONNECTIONS", 30))
 
